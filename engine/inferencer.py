@@ -35,7 +35,6 @@ def do_inference(
     sub.iloc[test_features['cp_type'] == 'ctl_vehicle', 1:] = 0
     sub.to_csv(infer_result_dir, index=False)
 
-    pass
 
 
 
