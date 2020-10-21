@@ -1,10 +1,8 @@
 # author: yx
 # date: 2020/10/19 9:20
 
-import logging
 import torch
 import os
-import csv
 from tqdm import trange
 from data.datasets.LishMoa import data_preprocess
 
