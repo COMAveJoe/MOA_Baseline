@@ -9,6 +9,7 @@ from tqdm import trange
 from data.datasets.LishMoa import data_preprocess
 
 import numpy as np
+import pandas as pd
 
 def do_inference(
         cfg,
@@ -19,28 +20,44 @@ def do_inference(
     infer_result_dir = os.path.join(cfg.INFERENCE_RESULT_DIR, 'submission.csv')
     submission_file = cfg.DATASET.SUBMISSION
     categories, numerical = data_preprocess(cfg, indices=None, is_train=False)
+    test_features = pd.read_csv(cfg.DATASET.TEST)
 
-    f1 = open(submission_file, 'r', encoding='utf-8')
-    f2 = open(infer_result_dir, 'w', encoding='utf-8', newline='')
-
-
-    contents = f1.readlines()
-
-    csv_writer = csv.writer(f2)
-
-    csv_writer.writerow(contents.pop(0).split(','))
+    sub = pd.read_csv(submission_file)
+    p_min = 0.001
+    p_max = 0.999
 
     for i in trange(len(categories)):
         cat = torch.tensor([categories[i]])
         num = torch.tensor([numerical[i]], dtype=torch.float32)
         pred1, pred2 = model(cat, num)
         pred1 = torch.sigmoid(pred1).detach().numpy()[0].tolist()
-        pred1.insert(0, contents[i].split(',')[0])
-        csv_writer.writerow(pred1)
+        sub.iloc[i, 1:] = np.clip(pred1, p_min, p_max)
         pass
 
-    f1.close()
-    f2.close()
+    sub.iloc[test_features['cp_type'] == 'ctl_vehicle', 1:] = 0
+    sub.to_csv(infer_result_dir, index=False)
+
+    # f1 = open(submission_file, 'r', encoding='utf-8')
+    # f2 = open(infer_result_dir, 'w', encoding='utf-8', newline='')
+    #
+    #
+    # contents = f1.readlines()
+    #
+    # csv_writer = csv.writer(f2)
+    #
+    # csv_writer.writerow(contents.pop(0).split(','))
+
+    # for i in trange(len(categories)):
+    #     cat = torch.tensor([categories[i]])
+    #     num = torch.tensor([numerical[i]], dtype=torch.float32)
+    #     pred1, pred2 = model(cat, num)
+    #     pred1 = torch.sigmoid(pred1).detach().numpy()[0].tolist()
+    #     pred1.insert(0, contents[i].split(',')[0])
+    #     csv_writer.writerow(pred1)
+    #     pass
+    #
+    # f1.close()
+    # f2.close()
     pass
 
 

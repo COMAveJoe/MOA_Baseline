@@ -74,7 +74,7 @@ _C.SOLVER.BATCH_SIZE = 128
 
 _C.TEST = CN()
 _C.TEST.BATCH_SIZE = 128
-_C.TEST.WEIGHT = r"D:\YX\code\MOA_Baseline-master\MOA_Baseline-master\output\moa_mlp_2_checkpoint_8400.pth"
+_C.TEST.WEIGHT = r"D:\YX\code\MOA_Baseline-master\MOA_Baseline-master\output\moa_mlp_2_checkpoint_8400.pt"
 
 
 # ----------------------------------------------------------------------------------------------------------------------
