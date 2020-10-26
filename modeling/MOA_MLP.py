@@ -63,9 +63,15 @@ class MOA_MLP(nn.Module):
 
 
 class MOA_MLPv2(nn.Module):
-    def __init__(self, num_cats=[2, 3, 2], cats_emb_size=[2, 2, 2], num_numericals=872, hidden_size_numericals=2048,
-                 num_class=206, aux=None):
+    def __init__(self, cfg):
         super().__init__()
+        num_cats = cfg.MODEL.NUM_CATS
+        cats_emb_size = cfg.MODEL.CATS_EMB_SIZE
+        num_numericals = cfg.MODEL.NUM_NUMERICALS
+        hidden_size_numericals = cfg.MODEL.HIDDEN_SIZE
+        num_class = cfg.MODEL.NUM_CLASS
+        aux = cfg.MODEL.AUX
+
         self.cat_emb1 = nn.Embedding(num_cats[0], cats_emb_size[0], padding_idx=0)
         self.cat_emb2 = nn.Embedding(num_cats[1], cats_emb_size[1], padding_idx=0)
         self.cat_emb3 = nn.Embedding(num_cats[2], cats_emb_size[2], padding_idx=0)

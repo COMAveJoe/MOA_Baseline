@@ -22,9 +22,9 @@ _C = CN()
 
 _C.MODEL = CN()
 _C.MODEL.DEVICE = 'cpu'
-_C.MODEL.META_ARCHITECTURE = 'MOA_MLP'
-_C.MODEL.NUM_CATS = [2+1, 3+1, 2+1]
-_C.MODEL.CATS_EMB_SIZE = [1, 1]
+_C.MODEL.META_ARCHITECTURE = 'MOA_MLPv2'
+_C.MODEL.NUM_CATS = [2 + 1, 3 + 1, 2 + 1]
+_C.MODEL.CATS_EMB_SIZE = [1, 1, 1]
 _C.MODEL.AUX = 330
 _C.MODEL.NUM_NUMERICALS = 872
 _C.MODEL.NUM_CLASS = 206
@@ -44,6 +44,7 @@ _C.DATASET.TEST = r'D:\YX\resource\lish-moa\test_features.csv'
 _C.DATASET.SUBMISSION = r'D:\YX\resource\lish-moa\sample_submission.csv'
 
 _C.DATASET.NORMALIZE = True
+_C.DATASET.REMOVE_VEHICLE = True
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DataLoader

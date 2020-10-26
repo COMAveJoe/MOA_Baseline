@@ -70,6 +70,8 @@ def data_preprocess(cfg, indices=None, is_train=True):
     :return: data content
     """
     normalize = cfg.DATASET.NORMALIZE
+    remove_vehicle = cfg.DATASET.REMOVE_VEHICLE
+
     if is_train:
         train_dir = cfg.DATASET.TRAIN
         train_targets_scored_dir = cfg.DATASET.TRAIN_TARGETS_SCORED
@@ -91,6 +93,11 @@ def data_preprocess(cfg, indices=None, is_train=True):
             train = train.loc[indices]
             train_targets_scored = train_targets_scored.loc[indices]
             train_targets_non_scored = train_targets_non_scored.loc[indices]
+
+            if remove_vehicle:
+                train_targets_scored = train_targets_scored.loc[train['cp_type']=='trt_cp'].reset_index(drop=True)
+                train_targets_non_scored = train_targets_non_scored.loc[train['cp_type'] == 'trt_cp'].reset_index(drop=True)
+                train = train.loc[train['cp_type'] == 'trt_cp'].reset_index(drop=True)
 
         assert len(train) == len(train_targets_scored) and len(train_targets_scored) == len(train_targets_non_scored)
 
