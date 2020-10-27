@@ -1,27 +1,56 @@
 # author: yx
-# date: 2020/10/16 13:50
+# date: 2020/10/26 11:40
+from configs import cfg
 import numpy as np
+import pandas as pd
+from scipy import stats
+from sklearn.decomposition import PCA
+from layers.gauss_rank_scaler import GaussRankScaler
 
-mapping = {'cp_type':{'trt_cp': 1, 'ctl_vehicle': 2},
-           'cp_tine':{48: 1, 72: 2, 24: 3},
-           'cp_dose':{'D1': 1, 'D2': 2}}
+def scale_minmax(col):
+    return (col - col.min()) / (col.max() - col.min())
 
+def scale_norm(col):
+    return (col - col.mean()) / col.std()
 
-def transform_data(train, test, col, mapping, normalize=True):
-    """
-        the first 3 columns represents categories, the others numericals features
-    """
+def transform(scale, features):
+    cols_numeric = [feat for feat in list(features.columns) if feat not in ["sig_id", "cp_type", "cp_time", "cp_dose"]]
 
-    categories_tr = np.stack([train[c].apply(lambda x: mapping[c][x]).values for c in col[:3]], axis=1)
-    categories_test = np.stack([test[c].apply(lambda x: mapping[c][x]).values for c in col[:3]], axis=1)
+    if scale == "boxcox":
+        features[cols_numeric] = features[cols_numeric].apply(scale_minmax, axis=0)
+        trans = []
+        for feat in cols_numeric:
+            trans_var, lambda_var = stats.boxcox(features[feat].dropna() + 1)
+            trans.append(scale_minmax(trans_var))
+        features[cols_numeric] = np.asarray(trans).T
 
-    max_ = 10.
-    min_ = -10.
+    elif scale == "norm":
+        features[cols_numeric] = features[cols_numeric].apply(scale_norm, axis=0)
 
-    numerical_tr = train[col[3:]].values
-    numerical_test = test[col[3:]].values
+    elif scale == "minmax":
+        features[cols_numeric] = features[cols_numeric].apply(scale_minmax, axis=0)
 
-    if normalize:
-        numerical_tr = (numerical_tr - min_) / (max_ - min_)
-        numerical_test = (numerical_test - min_) / (max_ - min_)
-    return categories_tr, categories_test, numerical_tr, numerical_test
+    elif scale == "rankgauss":
+        ### Rank Gauss ###
+        scaler = GaussRankScaler()
+
+        features[cols_numeric] = scaler.fit_transform(features[cols_numeric])
+    else:
+        pass
+
+    numerical = features[cols_numeric].values
+    return numerical
+
+def pca(features):
+    GENES = [col for col in features.columns if col.startswith("g-")]
+    CELLS = [col for col in features.columns if col.startswith("c-")]
+
+    pca_genes = PCA(n_components=80,
+                    random_state=42).fit_transform(features[GENES])
+    pca_cells = PCA(n_components=10,
+                    random_state=42).fit_transform(features[CELLS])
+    
+    pca_genes = pd.DataFrame(pca_genes, columns=[f"pca_g-{i}" for i in range(80)])
+    pca_cells = pd.DataFrame(pca_cells, columns=[f"pca_c-{i}" for i in range(10)])
+
+    features = pd.concat([features, pca_genes, pca_cells], axis=1)

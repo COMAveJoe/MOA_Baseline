@@ -26,6 +26,7 @@ _C.MODEL.META_ARCHITECTURE = 'MOA_MLPv2'
 _C.MODEL.NUM_CATS = [2 + 1, 3 + 1, 2 + 1]
 _C.MODEL.CATS_EMB_SIZE = [1, 1, 1]
 _C.MODEL.AUX = 330
+
 _C.MODEL.NUM_NUMERICALS = 872
 _C.MODEL.NUM_CLASS = 206
 _C.MODEL.HIDDEN_SIZE = 2048
@@ -45,6 +46,8 @@ _C.DATASET.SUBMISSION = r'D:\YX\resource\lish-moa\sample_submission.csv'
 
 _C.DATASET.NORMALIZE = True
 _C.DATASET.REMOVE_VEHICLE = True
+_C.DATASET.SCALE = 'rankgauss'
+_C.DATASET.DECOMPO = 'PCA'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DataLoader
@@ -75,7 +78,7 @@ _C.SOLVER.BATCH_SIZE = 128
 
 _C.TEST = CN()
 _C.TEST.BATCH_SIZE = 128
-_C.TEST.WEIGHT = r"D:\YX\code\MOA_Baseline-master\MOA_Baseline-master\output\moa_mlp_2_checkpoint_8400.pt"
+_C.TEST.WEIGHT = r"D:\YX\code\MOA_Baseline-master\MOA_Baseline-master\output\moa_mlp_1_checkpoint_2325.pt"
 
 
 # ----------------------------------------------------------------------------------------------------------------------

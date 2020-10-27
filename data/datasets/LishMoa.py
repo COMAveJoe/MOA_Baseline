@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch as t
 from torch.utils import data
+from ..transforms.transforms import transform
 
 # transform map
 mapping = {'cp_type': {'trt_cp': 1, 'ctl_vehicle': 2},
@@ -40,25 +41,35 @@ def get_ratio_labels(df):
     return columns
 
 
-def transform_data(features, normalize=True):
-    """
-        the first 3 columns represents categories, the others numericals features
-    """
-    max_ = 10.
-    min_ = -10.
+# def transform_data(features, normalize=True):
+#     """
+#         the first 3 columns represents categories, the others numericals features
+#     """
+#     max_ = 10.
+#     min_ = -10.
+#
+#     col = list(features.columns)[1:]
+#     sig = list(features.columns)[0]
+#
+#     # sig_ids = np.stack([features[sig].values], axis=1)
+#
+#     categories = np.stack([features[c].apply(lambda x: mapping[c][x]).values for c in col[:3]], axis=1)
+#
+#     numerical = features[col[3:]].values
+#
+#     if normalize:
+#         numerical = (numerical - min_) / (max_ - min_)
+#     return categories, numerical
+
+def transform_data(scale, features):
+    scale = scale
 
     col = list(features.columns)[1:]
-    sig = list(features.columns)[0]
-
-    # sig_ids = np.stack([features[sig].values], axis=1)
-
     categories = np.stack([features[c].apply(lambda x: mapping[c][x]).values for c in col[:3]], axis=1)
 
-    numerical = features[col[3:]].values
-
-    if normalize:
-        numerical = (numerical - min_) / (max_ - min_)
+    numerical = transform(scale, features)
     return categories, numerical
+    pass
 
 
 def data_preprocess(cfg, indices=None, is_train=True):
@@ -71,6 +82,7 @@ def data_preprocess(cfg, indices=None, is_train=True):
     """
     normalize = cfg.DATASET.NORMALIZE
     remove_vehicle = cfg.DATASET.REMOVE_VEHICLE
+    scale = cfg.DATASET.SCALE
 
     if is_train:
         train_dir = cfg.DATASET.TRAIN
@@ -101,12 +113,11 @@ def data_preprocess(cfg, indices=None, is_train=True):
 
         assert len(train) == len(train_targets_scored) and len(train_targets_scored) == len(train_targets_non_scored)
 
-        categories, numerical = transform_data(train, normalize=normalize)
-
+        # categories, numerical = transform_data(train, normalize=normalize)
+        categories, numerical = transform_data(scale, train)
 
         # type change
         train_targets_scored = train_targets_scored[train_targets_scored.columns].values.astype(np.float32)
-        # train_targets_non_scored = train_targets_non_scored[train_targets_non_scored.columns].values.astype(np.float32)
 
         train_targets_non_scored = train_targets_non_scored[columns_non_scored].values.astype(np.float32)
 
@@ -114,7 +125,7 @@ def data_preprocess(cfg, indices=None, is_train=True):
     else:
         test_dir = cfg.DATASET.TEST
         test = pd.read_csv(test_dir)
-        categories, numerical = transform_data(test, normalize=normalize)
+        categories, numerical = transform_data(scale, test)
         return categories, numerical
 
 
