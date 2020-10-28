@@ -49,7 +49,7 @@ def pca(features):
                     random_state=42).fit_transform(features[GENES])
     pca_cells = PCA(n_components=10,
                     random_state=42).fit_transform(features[CELLS])
-    
+
     pca_genes = pd.DataFrame(pca_genes, columns=[f"pca_g-{i}" for i in range(80)])
     pca_cells = pd.DataFrame(pca_cells, columns=[f"pca_c-{i}" for i in range(10)])
 
